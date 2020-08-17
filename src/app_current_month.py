@@ -55,7 +55,7 @@ def dash_app():
                         html.Img(src=app.get_asset_url(apt_capital_logo_filename))
                             ), # close col 1
                     dbc.Col([
-                        html.H1(children='APTCapital Asx Performance Dashboard'),
+                        html.H1(children='APTCapital ASX Performance'),
                         html.Div(children = f'Performance for period {date_range[0]} to {date_range[1]}'),
                             ]), # close col 2
                         ]),

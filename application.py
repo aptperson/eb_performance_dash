@@ -2,6 +2,7 @@
 from src.app_current_month import dash_app 
 
 app = dash_app()
+app.title='APTCapital ASX Performance'########### Set up the layout
 application = app.server
 
 if __name__ == '__main__':
