@@ -2,7 +2,9 @@
 
 # A Dashboard for momentum trading of the ASX
 
-To deploy to AWS Elasticbeanstalk:
+[APTCapital Performance dash](http://performance-dash-dev.ap-southeast-2.elasticbeanstalk.com/)
+
+### To deploy to AWS Elasticbeanstalk:
 
 #### create a new environment
 conda create --name eb_py37 python=3.7
