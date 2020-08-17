@@ -115,9 +115,9 @@ def prepare_performance_df(pnl_df, trade_universe_df, N, date_range):
     topN_plot_data_stop = topN_data.groupby(['date']).stopped_return.mean().to_frame('percent_returns').reset_index()
     topN_plot_data_stop['symbol'] = f'#TOP {N} PORT_TRAILING_STOP'
 
-    # benchmark_data = get_benchmark_data(date_range)
+    benchmark_data = get_benchmark_data(date_range)
 
-    plot_data = pd.concat([plot_data, plot_data_stop, topN_plot_data, topN_plot_data_stop])#, benchmark_data])
+    plot_data = pd.concat([plot_data, plot_data_stop, topN_plot_data, topN_plot_data_stop, benchmark_data])
     plot_data.sort_values('date', inplace = True)
     print(plot_data)
 
