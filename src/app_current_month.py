@@ -158,8 +158,12 @@ def prepare_portfolio_table_data(df):
 
 def get_benchmark_data(date_range):
     index_df = get_df_from_s3('benchmark_indices')
-    index_df['return'] = index_df.groupby('symbol').close.pct_change()
+    index_df.sort_values('timestamp', inplace = True)
+    index_df = index_df.groupby(['date', 'symbol']).tail(1)
     mask = (index_df.date >= date_range[0]) & (index_df.date <= date_range[1])
     benchmark_data = index_df.loc[mask]
-    benchmark_data['percent_returns'] = (1 + benchmark_data['return']).cumprod() -1
+    benchmark_data['return'] = benchmark_data.groupby('symbol').close.pct_change()
+    benchmark_data.fillna(0, inplace = True)
+    benchmark_data['percent_returns'] = 1 + benchmark_data['return']
+    benchmark_data['percent_returns'] = benchmark_data.groupby('symbol').percent_returns.cumprod() -1
     return(benchmark_data[['date', 'symbol', 'percent_returns']])
