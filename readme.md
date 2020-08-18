@@ -1,8 +1,8 @@
 <!-- readme.md -->
 
-# A Dashboard for momentum trading of the ASX
+[# A Dashboard for momentum trading of the ASX](http://performance-dash-dev.ap-southeast-2.elasticbeanstalk.com/)
 
-[APTCapital Performance dash](http://performance-dash-dev.ap-southeast-2.elasticbeanstalk.com/)
+<!-- [APTCapital Performance dash] -->
 
 ### To deploy to AWS Elasticbeanstalk:
 
@@ -33,3 +33,5 @@ git add .
 git commit -m "update commit message:
 
 eb deploy
+
+[inspired by](https://medium.com/@austinlasseter/plotly-dash-and-the-elastic-beanstalk-command-line-89fb6b67bb79)

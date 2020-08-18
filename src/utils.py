@@ -82,8 +82,8 @@ def insert_open_prices(pnl_df, open_price_df):
 def get_performance_data(signal_date, pnl_month_start, pnl_month_end ):
 
     trade_universe_df = query_asx_table_date_range(signal_date, signal_date, 'asx_trade_universe', verbose = 1)
-    open_price_df = query_asx_table_date_range(signal_date, signal_date, 'asx_trade_open_prices_2', verbose = 1)
-    pnl_df = query_asx_table_date_range(pnl_month_start, pnl_month_end, 'asx_position_pnl_2', verbose = 1)
+    open_price_df = query_asx_table_date_range(signal_date, signal_date, 'asx_trade_open_prices', verbose = 1)
+    pnl_df = query_asx_table_date_range(pnl_month_start, pnl_month_end, 'asx_position_pnl', verbose = 1)
     print(f'{trade_universe_df.shape[0]} in trade universe df')
     print(f'{open_price_df.shape[0]} in open price df')
     print(f'{pnl_df.shape[0]} in pnl df')
