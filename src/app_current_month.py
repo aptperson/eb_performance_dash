@@ -148,7 +148,8 @@ def prepare_universe_table_data(pnl_df, trade_universe_df, N):
 
 
 def prepare_portfolio_table_data(df):
-    df = pd.concat([df.groupby('symbol').percent_returns.first().to_frame('open'),
+    df = pd.concat([
+        # df.groupby('symbol').percent_returns.first().to_frame('open'),
                     df.groupby('symbol').percent_returns.last().to_frame('current'),
                     df.groupby('symbol').percent_returns.min().to_frame('min'),
                     df.groupby('symbol').percent_returns.max().to_frame('max')
