@@ -40,7 +40,6 @@ app.layout = html.Div(children=[
                     html.H1(children='APTCapital Asx Performance Dashboard'),
                     html.H3(id='data-refresh'),
                     html.Button('Refresh Data', id='button'),
-                    html.H3(id='button-clicks'),
                     # html.Div(children = f'Performance for period {date_range[0]} to {date_range[1]}'),
                         ]), # close col 2
                     ]),

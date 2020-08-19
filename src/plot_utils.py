@@ -93,28 +93,15 @@ def plot_ohlc(plot_data, x_col = 'date', date_format = '%Y-%m-%d'):
 
     fig = go.Figure(data = data)
     return(fig)
-    # fig.show()
     
 
-
-def plot_groupby_ts(plot_data, x_col, y_col, g_col, date_format = '%Y-%m-%d'):
-
+def plot_groupby_ts(plot_data, x_col, y_col, g_col, date_format = '%Y-%m-%d', title = None):
     x = x_date_conversion(plot_data[x_col], date_format)
-
-    data = [dict(
-      type = 'scatter',
-      x = x,
-      y = plot_data[y_col],
-      mode = 'lines',
-      transforms = [dict(
-        type = 'groupby',
-        groups = plot_data[g_col],
-      )]
-    )]
-
-    fig_dict = dict(data=data)
-
-    return(fig_dict)
+    fig = go.Figure()
+    for group, data, in plot_data.groupby(g_col):
+        fig.add_scatter(x = data[x_col], y = data[y_col], name = group, mode = 'lines')
+    fig.update_layout(title={'text': title})
+    return(fig)
 
     
 def zero_returns_by_open_date(df):
