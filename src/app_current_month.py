@@ -38,7 +38,9 @@ app.layout = html.Div(children=[
                         ), # close col 1
                 dbc.Col([
                     html.H1(children='APTCapital Asx Performance Dashboard'),
-                    html.H3(id='data-refresh')
+                    html.H3(id='data-refresh'),
+                    html.Button('Refresh Data', id='button'),
+                    html.H3(id='button-clicks'),
                     # html.Div(children = f'Performance for period {date_range[0]} to {date_range[1]}'),
                         ]), # close col 2
                     ]),
@@ -63,18 +65,13 @@ app.layout = html.Div(children=[
             ), # close col 2
         
         ]) # close row 2
-        , dcc.Interval(
-            id='interval-component',
-            interval=6*60*60*1000, # in milliseconds
-            n_intervals=0
-        )
         , html.Div(id='hidden-data', style={'display': 'none'})
         ]) # close page
 
 
-@app.callback(Output('hidden-data', 'children'), [Input('interval-component', 'n_intervals')])
-def get_data(n_intervals):
-    print(f'N data updates: {n_intervals}')
+@app.callback(Output('hidden-data', 'children'), [Input('button', 'n_clicks')])
+def get_data(n_clicks):
+    print(f'N data updates: {n_clicks}')
     last_update = get_current_date_tz(out_format=None)
     today, signal_date, pnl_month_start, pnl_month_end = gen_trading_dates()
     trade_universe_df, open_price_df, pnl_df = get_performance_data(signal_date, pnl_month_start, pnl_month_end)
