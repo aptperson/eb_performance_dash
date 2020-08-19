@@ -97,7 +97,7 @@ def timestamp_text(timestamp):
 @app.callback(Output('portfolio-graph', 'figure'), [Input('hidden-data', 'children')])
 def render_graph(jsonified__data):
     portfolio_df = pd.read_json(jsonified__data[0])
-    performance_fig = plot_groupby_ts(portfolio_df, x_col='date', y_col = 'percent_returns', g_col = 'symbol')
+    performance_fig = plot_groupby_ts(portfolio_df, x_col='date', y_col = 'percent_returns', g_col = 'symbol', title = f'graph update {json.loads(jsonified__data[4])}')
     return performance_fig
 
 
