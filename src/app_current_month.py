@@ -59,14 +59,18 @@ app.layout = html.Div(children=[
             ), # close col 2
         
         ]) # close row 2
-
-        , dcc.Dropdown(id='dropdown', style={'display': 'none'})
+        , dcc.Interval(
+            id='interval-component',
+            interval=6*60*60*1000, # in milliseconds
+            n_intervals=0
+        )
         , html.Div(id='hidden-data', style={'display': 'none'})
         ]) # close page
 
 
-@app.callback(Output('hidden-data', 'children'), [Input('dropdown', 'value')])
-def get_data(value):
+@app.callback(Output('hidden-data', 'children'), [Input('interval-component', 'n_intervals')])
+def get_data(n_intervals):
+    print(f'N data updates: {n_intervals}')
     today, signal_date, pnl_month_start, pnl_month_end = gen_trading_dates()
     trade_universe_df, open_price_df, pnl_df = get_performance_data(signal_date, pnl_month_start, pnl_month_end)
     pnl_df = insert_open_prices(pnl_df, open_price_df)

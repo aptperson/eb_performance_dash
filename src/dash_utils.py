@@ -34,7 +34,6 @@ def prepare_performance_df(pnl_df, trade_universe_df, N, date_range):
 
     plot_data = pd.concat([plot_data, plot_data_stop, topN_plot_data, topN_plot_data_stop, benchmark_data])
     plot_data.sort_values('date', inplace = True)
-    print(plot_data)
 
     return(plot_data)
 
