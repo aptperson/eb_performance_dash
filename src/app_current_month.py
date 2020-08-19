@@ -2,6 +2,8 @@
 
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
+import json
+
 import dash
 import dash_table
 import dash_bootstrap_components as dbc
@@ -15,7 +17,8 @@ from src.dash_utils import *
 
 from src.plot_utils import plot_ohlc, plot_ts
 from src.plot_utils import plot_groupby_ts
-from src.utils import gen_trading_dates, get_performance_data, insert_open_prices
+from src.utils import gen_trading_dates, get_performance_data
+from src.utils import insert_open_prices, get_current_date_tz
 from src.query_utils import get_df_from_s3
 
 external_stylesheets = [dbc.themes.BOOTSTRAP] #['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -35,6 +38,7 @@ app.layout = html.Div(children=[
                         ), # close col 1
                 dbc.Col([
                     html.H1(children='APTCapital Asx Performance Dashboard'),
+                    html.H3(id='data-refresh')
                     # html.Div(children = f'Performance for period {date_range[0]} to {date_range[1]}'),
                         ]), # close col 2
                     ]),
@@ -71,6 +75,7 @@ app.layout = html.Div(children=[
 @app.callback(Output('hidden-data', 'children'), [Input('interval-component', 'n_intervals')])
 def get_data(n_intervals):
     print(f'N data updates: {n_intervals}')
+    last_update = get_current_date_tz(out_format=None)
     today, signal_date, pnl_month_start, pnl_month_end = gen_trading_dates()
     trade_universe_df, open_price_df, pnl_df = get_performance_data(signal_date, pnl_month_start, pnl_month_end)
     pnl_df = insert_open_prices(pnl_df, open_price_df)
@@ -81,7 +86,16 @@ def get_data(n_intervals):
     universe_plot_data = prepare_universe_df(pnl_df, trade_universe_df, N)
     universe_plot_data.reset_index(drop = True, inplace = True)
 
-    return [portfolio_plot_data.to_json(), universe_plot_data.to_json(), pnl_df.to_json(), trade_universe_df.to_json()]
+    return [portfolio_plot_data.to_json(),
+            universe_plot_data.to_json(),
+            pnl_df.to_json(),
+            trade_universe_df.to_json(),
+            json.dumps(str(last_update)[:16])]
+
+
+@app.callback(Output('data-refresh', 'children'), [Input('hidden-data', 'children')])
+def timestamp_text(timestamp):
+    return f'The last data refresh was at AEST: {json.loads(timestamp[4])}'
 
 
 @app.callback(Output('portfolio-graph', 'figure'), [Input('hidden-data', 'children')])
