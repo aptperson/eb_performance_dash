@@ -1,5 +1,5 @@
 # application.py
-from src.app_current_month import app 
+from src.index import app 
 
 # app = dash_app()
 app.title='APTCapital ASX Performance'########### Set up the layout

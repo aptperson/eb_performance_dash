@@ -4,7 +4,7 @@ import pandas as pd
 from src.plot_utils import plot_ohlc, plot_ts
 from src.plot_utils import plot_groupby_ts
 from src.utils import gen_trading_dates, get_performance_data, insert_open_prices
-from src.query_utils import get_df_from_s3
+from src.query_utils import get_df_from_s3, query_asx_table_date_range
 
 
 def prepare_table(df):
@@ -82,3 +82,20 @@ def get_benchmark_data(date_range):
     benchmark_data['percent_returns'] = 1 + benchmark_data['return']
     benchmark_data['percent_returns'] = benchmark_data.groupby('symbol').percent_returns.cumprod() -1
     return(benchmark_data[['date', 'symbol', 'percent_returns']])
+
+
+def next_period_signal(signal_date):
+    signal_df = get_df_from_s3(signal_date)
+    print(f'signal_df shape {signal_df.shape}')
+    trade_universe_df = query_asx_table_date_range(signal_date, signal_date, 'asx_trade_universe', verbose = 1)
+    print(f'trade_universe_df shape {trade_universe_df.shape}')
+    return(signal_df, trade_universe_df)
+
+
+def prepare_next_period_universe_table_data(next_trade_universe_df, N):
+    cols = ['symbol', 'n12_skip1_returns', 'n9_skip1_returns', 'n6_skip1_returns',
+       'n3_skip1_returns', 'n1_skip0_returns', 'na_count', 'na_mean', 'historical_vol',
+       'agg_mom']
+    out = next_trade_universe_df[cols].sort_values('agg_mom').tail(20)
+    out = out.round(4)
+    return(prepare_table(out))

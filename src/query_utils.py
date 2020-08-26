@@ -2,7 +2,6 @@ from datetime import datetime
 import json
 
 import boto3
-import s3fs
 
 import pandas as pd
 
@@ -10,6 +9,7 @@ from boto3.dynamodb.conditions import Key, Attr
 
 
 db = boto3.resource('dynamodb', 'ap-southeast-2')
+s3 = boto3.client('s3')
 
 # table_field_dict = {'asx_dividends': ['asx_dividends', 'dividends'],
 #                     'asx_splits': ['asx_splits', 'splits'],
@@ -32,16 +32,16 @@ table_field_dict = {'asx_dividends': ['asx_dividends', 'dividends'],
                     'asx_trade_open_prices_2': ['asx_trade_open_prices_2', 'open_prices']}
 
 
-def get_df_from_s3(fn, bucket = 'signallambda-dev-large-df-storage/'):
-    s3 = s3fs.S3FileSystem(anon=False)
-    s3_files = s3.ls(bucket)
+def get_df_from_s3(fn, bucket = 'signallambda-dev-large-df-storage'):
+    bucket_objects = s3.list_objects(Bucket=bucket)
+    s3_files = [C['Key'] for C in bucket_objects['Contents']]
     signal_file = [fn in b for b in s3_files]
     signal_file = [i for (i, v) in zip(s3_files, signal_file) if v]
     if len(signal_file) > 0:
         print('attempting to read: {}'.format(signal_file[0]))
         try:
-            with s3.open(signal_file[0], 'rb') as f:
-                signal_df = pd.read_csv(f)
+            obj = s3.get_object(Bucket=bucket, Key=signal_file[0])
+            signal_df = pd.read_csv(obj['Body'])
             print('much_read success')
         except Exception as e:
             print(repr(e))
