@@ -7,8 +7,8 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 from app import app
-from src.tabs import individual_components_page, portfolio_page
-from src.tabs import next_period
+from tabs import individual_components_page, portfolio_page
+from tabs import next_period
 
 from src.dash_utils import *
 
