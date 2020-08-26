@@ -7,4 +7,4 @@ application = app.server
 
 if __name__ == '__main__':
     # app.run_server(debug=True)
-    application.run(debug=True, port=8080)
+    application.run(debug=True, port=8000)
