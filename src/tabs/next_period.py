@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output
 
 import pandas as pd
 
-from src.app import app
+from src.app import app 
 from src.plot_utils import plot_groupby_ts
 from src.dash_utils import *
 
@@ -44,7 +44,7 @@ def render_table(jsonified_data):
 def render_graph(jsonified_data, selected_rows, table_data):
     next_signal_df = pd.read_json(jsonified_data[6])
     if selected_rows is None:
-        sym = table_data[-1]['symbol']
+        sym = next_signal_df.symbol.values[-1]
     else:
         sym = table_data[selected_rows[0]]['symbol']
     print(f'selected symbol {sym}')
