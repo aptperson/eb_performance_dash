@@ -13,10 +13,9 @@ from src.dash_utils import *
 
 
 layout = html.Div([
-    html.H3('Portfolio Performance'),
     dcc.Graph(id='portfolio-graph'),
     dash_table.DataTable(id='protfolio-performance-table')
-])
+], style={'marginBottom': 50, 'marginTop': 5, 'marginLeft':20, 'marginRight':20})
 
 @app.callback(Output('portfolio-graph', 'figure'), [Input('hidden-data', 'children'),
                                                     Input('button', 'n_clicks')])

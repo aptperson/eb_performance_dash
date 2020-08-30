@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output
 
 import pandas as pd
 
-from app import app 
+from index import app 
 from src.plot_utils import plot_groupby_ts
 from src.dash_utils import *
 
