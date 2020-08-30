@@ -21,8 +21,8 @@ from src.utils import gen_trading_dates, get_performance_data
 from src.utils import insert_open_prices, get_current_date_tz
 from src.query_utils import get_df_from_s3
 
-external_stylesheets = [dbc.themes.BOOTSTRAP] #['https://codepen.io/chriddyp/pen/bWLwgP.css']
-apt_capital_logo_filename = 'APTCapitalLogo_200x200.png' # replace with your own image
+external_stylesheets = [dbc.themes.BOOTSTRAP]
+apt_capital_logo_filename = 'APTCapitalLogo_200x200.png'
 
 N = 10
 
@@ -38,32 +38,41 @@ app.layout = html.Div(children=[
                         ), # close col 1
                 dbc.Col([
                     html.H1(children='APTCapital Asx Performance Dashboard'),
-                    html.H3(id='data-refresh'),
+                        ]
+                    , style={'marginBottom': 2, 'marginTop': 25, 'marginLeft':5, 'marginRight':15}
+                        ), # close col 2
+                dbc.Col([
+                    html.H6(id='data-refresh'),
                     html.Button('Refresh Data', id='button'),
                     # html.Div(children = f'Performance for period {date_range[0]} to {date_range[1]}'),
-                        ]), # close col 2
+                        ]
+                    , style={'marginBottom': 2, 'marginTop': 50, 'marginLeft':50, 'marginRight':15}
+                        ), # close col 3
                     ]),
                 ]),
-                dbc.Col()
-            ]), # end heading row
-        dbc.Row([
+                # dbc.Col()
+            ], style={'marginBottom': 2, 'marginTop': 5, 'marginLeft':15, 'marginRight':15}), # end heading row
+    dbc.Row([
             dbc.Col(
                 dcc.Graph(id='portfolio-graph')
-                    ), # close col 1
+                , style={'marginBottom': 50, 'marginTop': 5, 'marginLeft':20, 'marginRight':20}
+                ), # close col 1
             dbc.Col(
                 dcc.Graph(id='universe-graph')
+                , style={'marginBottom': 50, 'marginTop': 5, 'marginLeft':20, 'marginRight':20}
                     ) # close col 2
         ])
         , # close row 1
         dbc.Row([
             dbc.Col(
                 dash_table.DataTable(id='protfolio-performance-table')
+                , style={'marginBottom': 50, 'marginTop': 5, 'marginLeft':20, 'marginRight':20}
             ), # close col 1
             dbc.Col(
                 dash_table.DataTable(id='universe-performance-table')
+                , style={'marginBottom': 50, 'marginTop': 5, 'marginLeft':20, 'marginRight':20}
             ), # close col 2
-        
-        ]) # close row 2
+        ], style={'marginBottom': 2, 'marginTop': 5, 'marginLeft':15, 'marginRight':15}) # close row 2
         , html.Div(id='hidden-data', style={'display': 'none'})
         ]) # close page
 
@@ -97,14 +106,22 @@ def timestamp_text(timestamp):
 @app.callback(Output('portfolio-graph', 'figure'), [Input('hidden-data', 'children')])
 def render_graph(jsonified__data):
     portfolio_df = pd.read_json(jsonified__data[0])
-    performance_fig = plot_groupby_ts(portfolio_df, x_col='date', y_col = 'percent_returns', g_col = 'symbol', title = f'graph update {json.loads(jsonified__data[4])}')
+    performance_fig = plot_groupby_ts(portfolio_df,
+                                      x_col='date',
+                                      y_col = 'percent_returns',
+                                      g_col = 'symbol',
+                                      title = f'Portfolio returns vs benchmarks (XJO, XVI)')
     return performance_fig
 
 
 @app.callback(Output('universe-graph', 'figure'), [Input('hidden-data', 'children')])
 def render_graph(jsonified__data):
     universe_plot_df = pd.read_json(jsonified__data[1])
-    universe_top_N_fig = plot_groupby_ts(universe_plot_df, x_col='date', y_col = 'percent_return', g_col = 'symbol')
+    universe_top_N_fig = plot_groupby_ts(universe_plot_df,
+                                         x_col='date',
+                                         y_col = 'percent_return',
+                                         g_col = 'symbol',
+                                         title = f'Returns with trailing stop for portfolio components')
     return universe_top_N_fig
 
 
