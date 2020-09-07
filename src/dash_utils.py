@@ -114,7 +114,7 @@ def prepare_portfolio_table_data(df):
 
 def get_benchmark_data(date_range, benchmark_symbols=['XJT']):
     index_df = get_df_from_s3('benchmark_indices')
-    index_df.sort_values('timestamp', inplace = True)
+    index_df.sort_values('date', inplace = True)
     index_df = index_df.groupby(['date', 'symbol']).tail(1)
     mask = (index_df.date >= date_range[0]) & (index_df.date <= date_range[1])
     benchmark_data = index_df.loc[mask]
