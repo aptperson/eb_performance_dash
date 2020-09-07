@@ -21,7 +21,7 @@ def prepare_performance_df(pnl_df, trade_universe_df, N, date_range):
     plot_data_stop = pnl_df.groupby(['date']).stopped_return.mean().to_frame('percent_returns').reset_index()
     plot_data_stop['symbol'] = '#PORT_TRAILING_STOP'
 
-    topN_data = filter_to_top_N(pnl_df, trade_universe_df, N = 10)
+    topN_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10)
 
     topN_plot_data = topN_data.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
     topN_plot_data['symbol'] = f'#TOP {N} PORT_NO_STOP'
@@ -30,34 +30,75 @@ def prepare_performance_df(pnl_df, trade_universe_df, N, date_range):
     topN_plot_data_stop = topN_data.groupby(['date']).stopped_return.mean().to_frame('percent_returns').reset_index()
     topN_plot_data_stop['symbol'] = f'#TOP {N} PORT_TRAILING_STOP'
 
+    topN_frog_agg_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy='frog_agg')
+    topN_plot_data_frog_agg = topN_frog_agg_data.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
+    topN_plot_data_frog_agg['symbol'] = f'#TOP {N} PORT_FROG_AGG'
+
     benchmark_data = get_benchmark_data(date_range)
 
-    plot_data = pd.concat([plot_data, plot_data_stop, topN_plot_data, topN_plot_data_stop, benchmark_data])
+    plot_data = pd.concat([plot_data, plot_data_stop, topN_plot_data, topN_plot_data_stop, topN_plot_data_frog_agg, benchmark_data])
     plot_data.sort_values('date', inplace = True)
 
     return(plot_data)
 
 
-def prepare_universe_df(pnl_df, trade_universe_df, N = 10):
-    plot_data = filter_to_top_N(pnl_df, trade_universe_df, N)
-    agg_data = plot_data.groupby(['date', 'open_date']).stopped_return.mean().to_frame('percent_return').reset_index()
-    agg_data['symbol'] = '#PORT_TRAILING_STOP'
-    plot_data['percent_return'] = plot_data.stopped_return
-    return(pd.concat([plot_data, agg_data]))
+def prepare_universe_df(pnl_df, trade_universe_df, N = 10, stratergies = ['agg_mom', 'frog_agg']):
+    
+    universe_df=[]
+    for stratergy in stratergies:
+        universe_df.append(prepare_stratergy_df(pnl_df, trade_universe_df, N, stratergy))
+
+    return(pd.concat(universe_df))
 
 
-def filter_to_top_N(pnl_df, trade_universe_df, N = 10):
-    topN = trade_universe_df.tail(N).symbol.values
-    topN_data = pnl_df.loc[pnl_df.symbol.isin(topN)].copy() #.groupby(['date', 'open_date']).percent_return.mean().to_frame('percent_returns').reset_index()
-    topN_data.sort_values('date', inplace = True)
-    return(topN_data)
+def prepare_stratergy_df(pnl_df, trade_universe_df, N = 10, stratergy='agg_mom'):
+    stratergy_df = filter_to_stratergy(pnl_df, trade_universe_df, N, stratergy)
+
+    stratergy_stopped_data = stratergy_df.groupby(['date', 'open_date']).stopped_return.mean().to_frame('stopped_return').reset_index()
+    stratergy_stopped_data['symbol'] = f'#PORT_TS_{stratergy}'
+
+    stratergy_raw_data = stratergy_df.groupby(['date', 'open_date']).percent_return.mean().to_frame('percent_return').reset_index()
+    stratergy_raw_data['symbol'] = f'#PORT_{stratergy}'
+    return(pd.concat([stratergy_df, stratergy_raw_data, stratergy_stopped_data]))
 
 
-def prepare_universe_table_data(pnl_df, trade_universe_df, N):
-    df = filter_to_top_N(pnl_df, trade_universe_df, N)
-    df = df.groupby('symbol')[['close', 'volume', 'high_water_mark',
+def filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy = 'agg_mom'):
+    if stratergy == 'agg_mom':
+        stratergy_symbols = trade_universe_df.sort_values('agg_mom').tail(N).symbol.values
+    elif stratergy == 'frog_agg':
+        frog_mom_df = trade_universe_df.loc[trade_universe_df.frog_momentum < 0]
+        stratergy_symbols = frog_mom_df.sort_values('agg_mom').tail(N).symbol.values
+    else:
+        print(f'Unknown stratergy {stratergy}, defaulting to agg_mom stratergy')
+        stratergy='agg_mom'
+        stratergy_symbols = trade_universe_df.sort_values('agg_mom').tail(N).symbol.values
+    stratergy_pnl_df = pnl_df.loc[pnl_df.symbol.isin(stratergy_symbols)].copy()
+    stratergy_pnl_df['stratergy'] = stratergy
+    stratergy_pnl_df.sort_values('date', inplace = True)
+    return(stratergy_pnl_df)
+
+
+# def filter_to_top_N(pnl_df, trade_universe_df, N = 10):
+#     topN = trade_universe_df.tail(N).symbol.values
+#     topN_data = pnl_df.loc[pnl_df.symbol.isin(topN)].copy() #.groupby(['date', 'open_date']).percent_return.mean().to_frame('percent_returns').reset_index()
+#     topN_data.sort_values('date', inplace = True)
+#     return(topN_data)
+
+
+# def filter_to_top_N_frog_agg(pnl_df, trade_universe_df, N = 10):
+#     frog_mom_df = trade_universe_df.loc[trade_universe_df.frog_momentum < 0]
+#     topN = frog_mom_df.sort_values('agg_mom').tail(N).symbol.values
+#     topN_data = pnl_df.loc[pnl_df.symbol.isin(topN)].copy() #.groupby(['date', 'open_date']).percent_return.mean().to_frame('percent_returns').reset_index()
+#     topN_data.sort_values('date', inplace = True)
+#     return(topN_data)
+
+
+def prepare_universe_table_data(trade_universe_df, stratergy):
+    # df = filter_to_stratergy(pnl_df, trade_universe_df, N)
+    df = trade_universe_df.loc[trade_universe_df.stratergy == stratergy]
+    df = df.groupby('symbol')[['close', 'volume', 'high_water_mark', 'percent_return',
                                'historical_vol', 'stop_level',
-                               'stopped', 'stopped_return']].last().reset_index().round(4).sort_values('stopped')
+                               'stopped', 'stopped_return']].last().reset_index().round(4).sort_values('percent_return')
     return(prepare_table(df))
 
 
@@ -71,12 +112,14 @@ def prepare_portfolio_table_data(df):
     return(prepare_table(df))
 
 
-def get_benchmark_data(date_range):
+def get_benchmark_data(date_range, benchmark_symbols=['XJT']):
     index_df = get_df_from_s3('benchmark_indices')
     index_df.sort_values('timestamp', inplace = True)
     index_df = index_df.groupby(['date', 'symbol']).tail(1)
     mask = (index_df.date >= date_range[0]) & (index_df.date <= date_range[1])
-    benchmark_data = index_df.loc[mask].copy()
+    benchmark_data = index_df.loc[mask]
+    mask = benchmark_data.symbol.isin(benchmark_symbols)
+    benchmark_data = benchmark_data.loc[mask]
     benchmark_data['return'] = benchmark_data.groupby('symbol').close.pct_change()
     benchmark_data.fillna(0, inplace = True)
     benchmark_data['percent_returns'] = 1 + benchmark_data['return']
@@ -84,18 +127,28 @@ def get_benchmark_data(date_range):
     return(benchmark_data[['date', 'symbol', 'percent_returns']])
 
 
-def next_period_signal(signal_date):
+def period_signal(signal_date, universe = True):
     signal_df = get_df_from_s3(signal_date)
     print(f'signal_df shape {signal_df.shape}')
-    trade_universe_df = query_asx_table_date_range(signal_date, signal_date, 'asx_trade_universe', verbose = 1)
-    print(f'trade_universe_df shape {trade_universe_df.shape}')
+    if universe:
+        trade_universe_df = query_asx_table_date_range(signal_date, signal_date, 'asx_trade_universe', verbose = 1)
+        print(f'trade_universe_df shape {trade_universe_df.shape}')
+    else:
+        trade_universe_df = pd.DataFrame()
     return(signal_df, trade_universe_df)
 
 
 def prepare_next_period_universe_table_data(next_trade_universe_df, N):
-    cols = ['symbol', 'n12_skip1_returns', 'n9_skip1_returns', 'n6_skip1_returns',
-       'n3_skip1_returns', 'n1_skip0_returns', 'na_count', 'na_mean', 'historical_vol',
-       'agg_mom']
+    print('cols:')
+    print(next_trade_universe_df.columns)
+    if 'frog_momentum' in next_trade_universe_df:
+        cols = ['symbol', 'n12_skip1_returns', 'n9_skip1_returns', 'n6_skip1_returns',
+                'n3_skip1_returns', 'n1_skip0_returns', 'months_positive', 'frog_momentum', 'historical_vol',
+                'agg_mom']
+    else:
+        cols = ['symbol', 'n12_skip1_returns', 'n9_skip1_returns', 'n6_skip1_returns',
+        'n3_skip1_returns', 'n1_skip0_returns', 'na_count', 'na_mean', 'historical_vol',
+        'agg_mom']
     out = next_trade_universe_df[cols].sort_values('agg_mom').tail(20)
     out = out.round(4)
     return(prepare_table(out))

@@ -25,6 +25,7 @@ external_stylesheets = [dbc.themes.BOOTSTRAP]
 apt_capital_logo_filename = 'APTCapitalLogo_200x200.png'
 
 N = 10
+stratergy = 'frog_agg'
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
@@ -104,35 +105,38 @@ def timestamp_text(timestamp):
 
 
 @app.callback(Output('portfolio-graph', 'figure'), [Input('hidden-data', 'children')])
-def render_graph(jsonified__data):
-    portfolio_df = pd.read_json(jsonified__data[0])
+def render_graph(jsonified_data):
+    portfolio_df = pd.read_json(jsonified_data[0])
     performance_fig = plot_groupby_ts(portfolio_df,
-                                      x_col='date',
+                                      x_col = 'date',
                                       y_col = 'percent_returns',
                                       g_col = 'symbol',
-                                      title = f'Portfolio returns vs benchmarks (XJO, XVI)')
+                                      title = 'Portfolio returns vs benchmark XJT',
+                                      yaxis_title = 'Percent Return (%)')
     return performance_fig
 
 
 @app.callback(Output('universe-graph', 'figure'), [Input('hidden-data', 'children')])
-def render_graph(jsonified__data):
-    universe_plot_df = pd.read_json(jsonified__data[1])
+def render_graph(jsonified_data):
+    universe_plot_df = pd.read_json(jsonified_data[1])
+    universe_plot_df = universe_plot_df.loc[universe_plot_df.stratergy==stratergy]
     universe_top_N_fig = plot_groupby_ts(universe_plot_df,
-                                         x_col='date',
+                                         x_col = 'date',
                                          y_col = 'percent_return',
                                          g_col = 'symbol',
-                                         title = f'Returns with trailing stop for portfolio components')
+                                         title = 'Momentum with frog filter returns for portfolio components',
+                                         yaxis_title = 'Percent Return (%)')
     return universe_top_N_fig
 
 
 @app.callback([Output('universe-performance-table', 'columns'), Output('universe-performance-table', 'data')], [Input('hidden-data', 'children')])
-def render_table(jsonified__data):
-    universe_df = prepare_universe_table_data(pd.read_json(jsonified__data[2]), pd.read_json(jsonified__data[3]), N)
+def render_table(jsonified_data):
+    universe_df = prepare_universe_table_data(pd.read_json(jsonified_data[1]), stratergy)
     return universe_df
 
 
 @app.callback([Output('protfolio-performance-table', 'columns'), Output('protfolio-performance-table', 'data')], [Input('hidden-data', 'children')])
 def render_table(jsonified_data):
-    # universe_df = prepare_universe_table_data(pd.read_json(jsonified__data[2]), pd.read_json(jsonified__data[3]), N)
+    # universe_df = prepare_universe_table_data(pd.read_json(jsonified_data[2]), pd.read_json(jsonified_data[3]), N)
     portfolio_df = prepare_portfolio_table_data(pd.read_json(jsonified_data[0]))
     return portfolio_df

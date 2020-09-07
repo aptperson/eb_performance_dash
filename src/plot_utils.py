@@ -95,12 +95,21 @@ def plot_ohlc(plot_data, x_col = 'date', date_format = '%Y-%m-%d'):
     return(fig)
     
 
-def plot_groupby_ts(plot_data, x_col, y_col, g_col, date_format = '%Y-%m-%d', title = None):
+def plot_groupby_ts(plot_data,
+                    x_col,
+                    y_col,
+                    g_col,
+                    date_format = '%Y-%m-%d',
+                    title = None,
+                    yaxis_title = None):
     x = x_date_conversion(plot_data[x_col], date_format)
     fig = go.Figure()
     for group, data, in plot_data.groupby(g_col):
         fig.add_scatter(x = data[x_col], y = data[y_col], name = group, mode = 'lines')
-    fig.update_layout(title={'text': title})
+    fig.update_layout(title={'text': title},
+                      xaxis={'tickformat': '%Y-%m-%d'},
+                      yaxis_title={'text': yaxis_title})
+
     return(fig)
 
     
