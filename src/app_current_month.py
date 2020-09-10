@@ -111,7 +111,7 @@ def render_graph(jsonified_data):
                                       x_col = 'date',
                                       y_col = 'percent_returns',
                                       g_col = 'symbol',
-                                      title = 'Portfolio returns vs benchmark XJT',
+                                      title = 'Portfolio vs benchmark (XJT) returns',
                                       yaxis_title = 'Percent Return (%)')
     return performance_fig
 
@@ -124,7 +124,7 @@ def render_graph(jsonified_data):
                                          x_col = 'date',
                                          y_col = 'percent_return',
                                          g_col = 'symbol',
-                                         title = 'Momentum with frog filter returns for portfolio components',
+                                         title = 'Momentum with frog filter portfolio component returns',
                                          yaxis_title = 'Percent Return (%)')
     return universe_top_N_fig
 

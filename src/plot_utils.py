@@ -109,7 +109,6 @@ def plot_groupby_ts(plot_data,
     fig.update_layout(title={'text': title},
                       xaxis={'tickformat': '%Y-%m-%d'},
                       yaxis_title={'text': yaxis_title})
-
     return(fig)
 
     
