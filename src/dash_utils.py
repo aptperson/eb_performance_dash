@@ -14,12 +14,12 @@ def prepare_table(df):
 
 
 def prepare_performance_df(pnl_df, trade_universe_df, N, date_range):
-    plot_data = pnl_df.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
-    plot_data['symbol'] = '#PORT_NO_STOP'
-    # performance_fig_no_stop = plot_ts(plot_data, x_col='date', y_col = 'percent_returns', log=False)
+    # plot_data = pnl_df.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
+    # plot_data['symbol'] = '#PORT_NO_STOP'
+    # # performance_fig_no_stop = plot_ts(plot_data, x_col='date', y_col = 'percent_returns', log=False)
     
-    plot_data_stop = pnl_df.groupby(['date']).stopped_return.mean().to_frame('percent_returns').reset_index()
-    plot_data_stop['symbol'] = '#PORT_TRAILING_STOP'
+    # plot_data_stop = pnl_df.groupby(['date']).stopped_return.mean().to_frame('percent_returns').reset_index()
+    # plot_data_stop['symbol'] = '#PORT_TRAILING_STOP'
 
     topN_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10)
 
@@ -36,7 +36,7 @@ def prepare_performance_df(pnl_df, trade_universe_df, N, date_range):
 
     benchmark_data = get_benchmark_data(date_range)
 
-    plot_data = pd.concat([plot_data, plot_data_stop, topN_plot_data, topN_plot_data_stop, topN_plot_data_frog_agg, benchmark_data])
+    plot_data = pd.concat([topN_plot_data, topN_plot_data_stop, topN_plot_data_frog_agg, benchmark_data])
     plot_data.sort_values('date', inplace = True)
 
     return(plot_data)
