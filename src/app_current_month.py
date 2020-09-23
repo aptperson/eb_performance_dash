@@ -43,9 +43,7 @@ app.layout = html.Div(children=[
                     , style={'marginBottom': 2, 'marginTop': 25, 'marginLeft':5, 'marginRight':15}
                         ), # close col 2
                 dbc.Col([
-                    html.H6(id='data-refresh'),
-                    html.Button('Refresh Data', id='button'),
-                    # html.Div(children = f'Performance for period {date_range[0]} to {date_range[1]}'),
+                        # empty col
                         ]
                     , style={'marginBottom': 2, 'marginTop': 50, 'marginLeft':50, 'marginRight':15}
                         ), # close col 3
@@ -74,34 +72,28 @@ app.layout = html.Div(children=[
                 , style={'marginBottom': 50, 'marginTop': 5, 'marginLeft':20, 'marginRight':20}
             ), # close col 2
         ], style={'marginBottom': 2, 'marginTop': 5, 'marginLeft':15, 'marginRight':15}) # close row 2
+        ,
+        dbc.Row([
+            dbc.Col(
+                dcc.Graph(id='backtest-graph')
+                , style={'marginBottom': 50, 'marginTop': 5, 'marginLeft':20, 'marginRight':20}
+            ), # close col 1
+            dbc.Col(
+                    [# insert backtest metrics or last few months
+                    ]
+                    , style={'marginBottom': 50, 'marginTop': 5, 'marginLeft':20, 'marginRight':20}
+            ), # close col 2
+        ], style={'marginBottom': 2, 'marginTop': 5, 'marginLeft':15, 'marginRight':15}) # close row 3
+
+
         , html.Div(id='hidden-data', style={'display': 'none'})
+        , dcc.Dropdown(id='data-refresh', style={'display': 'none'}),
         ]) # close page
 
 
-@app.callback(Output('hidden-data', 'children'), [Input('button', 'n_clicks')])
+@app.callback(Output('hidden-data', 'children'), [Input('data-refresh', 'value')])
 def get_data(n_clicks):
-    print(f'N data updates: {n_clicks}')
-    last_update = get_current_date_tz(out_format=None)
-    today, signal_date, pnl_month_start, pnl_month_end = gen_trading_dates()
-    trade_universe_df, open_price_df, pnl_df = get_performance_data(signal_date, pnl_month_start, pnl_month_end)
-    pnl_df = insert_open_prices(pnl_df, open_price_df)
-    date_range = [signal_date, min(pnl_month_end, today)]
-    portfolio_plot_data = prepare_performance_df(pnl_df, trade_universe_df, N, date_range)
-    portfolio_plot_data.reset_index(drop = True, inplace = True)
-
-    universe_plot_data = prepare_universe_df(pnl_df, trade_universe_df, N)
-    universe_plot_data.reset_index(drop = True, inplace = True)
-
-    return [portfolio_plot_data.to_json(),
-            universe_plot_data.to_json(),
-            pnl_df.to_json(),
-            trade_universe_df.to_json(),
-            json.dumps(str(last_update)[:16])]
-
-
-@app.callback(Output('data-refresh', 'children'), [Input('hidden-data', 'children')])
-def timestamp_text(timestamp):
-    return f'The last data refresh was at AEST: {json.loads(timestamp[4])}'
+    return(get_all_dash_datasets(N))
 
 
 @app.callback(Output('portfolio-graph', 'figure'), [Input('hidden-data', 'children')])
@@ -127,6 +119,20 @@ def render_graph(jsonified_data):
                                          title = 'Momentum with frog filter portfolio component returns',
                                          yaxis_title = 'Percent Return (%)')
     return universe_top_N_fig
+
+
+@app.callback(Output('backtest-graph', 'figure'), [Input('hidden-data', 'children')])
+def render_graph(jsonified_data):
+    backtest_plot_df = pd.read_json(jsonified_data[2])
+    backtest_fig = plot_groupby_ts(backtest_plot_df,
+                                         x_col = 'date',
+                                         y_col = 'portfolio_cpnl',
+                                         g_col = 'symbol',
+                                         title = 'Backtest performance vs Benchmark',
+                                         yaxis_title = 'Percent Return (%)',
+                                         log_offset=0,
+                                         log=True,)
+    return(backtest_fig)
 
 
 @app.callback([Output('universe-performance-table', 'columns'), Output('universe-performance-table', 'data')], [Input('hidden-data', 'children')])

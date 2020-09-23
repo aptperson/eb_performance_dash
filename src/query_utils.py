@@ -1,5 +1,7 @@
-from datetime import datetime
 import json
+import pickle5 as pickle
+from datetime import datetime
+
 
 import boto3
 
@@ -50,6 +52,25 @@ def get_df_from_s3(fn, bucket = 'signallambda-dev-large-df-storage'):
         signal_df = pd.DataFrame()
     return(signal_df)
 
+
+def get_pkl_from_s3(fn, bucket = 'signallambda-dev-large-df-storage'):
+    s3 = boto3.client('s3')
+    bucket_objects = s3.list_objects(Bucket=bucket)
+    s3_files = [C['Key'] for C in bucket_objects['Contents']]
+    signal_file = [fn in b for b in s3_files]
+    signal_file = [i for (i, v) in zip(s3_files, signal_file) if v]
+    if len(signal_file) > 0:
+        print('attempting to read: {}'.format(signal_file[0]))
+        try:
+            s3 = boto3.resource('s3')
+            my_pickle = pickle.loads(s3.Bucket(bucket).Object(signal_file[0]).get()['Body'].read())
+            print('much_read success')
+        except Exception as e:
+            print(repr(e))
+    else:
+        print('could not find file with string {}\nfiles in bucket:{}'.format(fn, s3_files))
+        my_pickle = []
+    return(my_pickle)
 
 
 def query_asx_table_date_range(f, t, table, verbose = 1, symbols = None):
