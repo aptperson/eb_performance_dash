@@ -70,6 +70,7 @@ def prepare_backtest_df(backtest_pnl_series, benchmark_data, cpnl_col_name='port
                                             symbol = 'XJOA',
                                             cpnl_col_name=cpnl_col_name,
                                             offset=0)
+    benchmark_data['symbol'] = 'XJT'
     return(pd.concat([backtest_pnl_series[['symbol', 'date', cpnl_col_name]], benchmark_data], ignore_index=True))
 
 
