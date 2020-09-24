@@ -10,7 +10,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-# import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 
 from src.dash_utils import *
@@ -30,7 +30,7 @@ stratergy = 'frog_agg'
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(children=[
-
+    
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -51,6 +51,10 @@ app.layout = html.Div(children=[
                 ]),
                 # dbc.Col()
             ], style={'marginBottom': 2, 'marginTop': 5, 'marginLeft':15, 'marginRight':15}), # end heading row
+    dbc.Row(
+        html.H3(children='Current Month Performance')
+        , style={'marginBottom': 1, 'marginTop': 1, 'marginLeft':50, 'marginRight':15} # end heading row
+    ),
     dbc.Row([
             dbc.Col(
                 dcc.Graph(id='portfolio-graph')
@@ -73,6 +77,10 @@ app.layout = html.Div(children=[
             ), # close col 2
         ], style={'marginBottom': 2, 'marginTop': 5, 'marginLeft':15, 'marginRight':15}) # close row 2
         ,
+    dbc.Row(
+        html.H3(children='Backtest and Historical Performance')
+        , style={'marginBottom': 1, 'marginTop': 1, 'marginLeft':50, 'marginRight':15} # end heading row
+    ),
         dbc.Row([
             dbc.Col(
                 dcc.Graph(id='backtest-graph')
@@ -80,8 +88,11 @@ app.layout = html.Div(children=[
             ), # close col 1
             dbc.Col(
                     [# insert backtest metrics or last few months
+                    dash_table.DataTable(id='historic-performance-table')
+                    , html.H6(children='Note: no leverage was used to generate the returns shown')
+                    , html.H6(children='The Kelly Leverage is the maximum leverage according to the Kelly criteria')
                     ]
-                    , style={'marginBottom': 50, 'marginTop': 5, 'marginLeft':20, 'marginRight':20}
+                    , style={'marginBottom': 5, 'marginTop': 50, 'marginLeft':20, 'marginRight':20}
             ), # close col 2
         ], style={'marginBottom': 2, 'marginTop': 5, 'marginLeft':15, 'marginRight':15}) # close row 3
 
@@ -131,8 +142,25 @@ def render_graph(jsonified_data):
                                          title = 'Backtest performance vs Benchmark',
                                          yaxis_title = 'Percent Return (%)',
                                          log_offset=0,
-                                         log=True,)
+                                         log=True)
+    historic_df = pd.read_json(jsonified_data[3])
+    oos_date = historic_df.loc[historic_df.data_split == 'val', 'start_year'].values[0]
+    backtest_fig.add_trace(go.Scatter(x=[oos_date,oos_date],
+                                      y=[backtest_plot_df.portfolio_cpnl.min(), backtest_plot_df.portfolio_cpnl.max()],
+                                      mode='lines',
+                                      name='Sample split',
+                                      line=dict(
+                                          dash="dot")
+                                      ))
+
     return(backtest_fig)
+
+
+@app.callback([Output('historic-performance-table', 'columns'), Output('historic-performance-table', 'data')], [Input('hidden-data', 'children')])
+def render_table(jsonified_data):
+    cols = ['stratergy', 'stratergy_period', 'N', 'start_year', 'end_year', 'final_wealth_multiple', 'sharpe_ratio', 'kelly_leverage', 'data_split']
+    historic_df = prepare_table(pd.read_json(jsonified_data[3])[cols])
+    return historic_df
 
 
 @app.callback([Output('universe-performance-table', 'columns'), Output('universe-performance-table', 'data')], [Input('hidden-data', 'children')])

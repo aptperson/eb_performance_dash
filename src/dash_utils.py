@@ -37,19 +37,29 @@ def get_all_dash_datasets(N):
     # backtest level
     backtest_df = prepare_backtest_df(backtest_pnl_series, benchmark_data)
 
-    return [portfolio_plot_data.to_json(),
+    return([portfolio_plot_data.to_json(),
             universe_plot_data.to_json(),
-            backtest_df.to_json()]
+            backtest_df.to_json(),
+            best_stratergy_parameters.to_json()])
 
 
 def get_backtest_data():
     best_stratergy_parameters, backtest_pnl_series = get_backtest_pkl(fn = 'Stratergy_results_2020-09-16_insample')
-    _, backtest_pnl_series_oos = get_backtest_pkl(fn = 'Stratergy_results_2020-09-16_outofsample')
+    best_stratergy_parameters_oos, backtest_pnl_series_oos = get_backtest_pkl(fn = 'Stratergy_results_2020-09-16_outofsample')
     backtest_pnl_series = merge_backtest_samples(backtest_pnl_series, backtest_pnl_series_oos)
+    best_stratergy_parameters = merge_backtest_parameters(best_stratergy_parameters, best_stratergy_parameters_oos)
     print(f'loaded the best stratergy parameters:')
     print(best_stratergy_parameters)
     return(best_stratergy_parameters, backtest_pnl_series)
     
+
+def merge_backtest_parameters(best_stratergy_parameters, best_stratergy_parameters_oos):
+    best_stratergy_parameters = pd.DataFrame(best_stratergy_parameters, index=[0])
+    best_stratergy_parameters['data_split'] = 'train'
+    best_stratergy_parameters_oos = pd.DataFrame(best_stratergy_parameters_oos, index=[1])
+    best_stratergy_parameters_oos['data_split'] = 'val'
+    return(pd.concat([best_stratergy_parameters, best_stratergy_parameters_oos]))
+
 
 def merge_backtest_samples(backtest_pnl_series, backtest_pnl_series_oos):
     backtest_pnl_series_oos['portfolio_cpnl'] = backtest_pnl_series_oos.portfolio_cpnl * backtest_pnl_series.portfolio_cpnl.values[-1]
