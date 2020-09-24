@@ -148,7 +148,7 @@ def render_graph(jsonified_data):
     backtest_fig.add_trace(go.Scatter(x=[oos_date,oos_date],
                                       y=[backtest_plot_df.portfolio_cpnl.min(), backtest_plot_df.portfolio_cpnl.max()],
                                       mode='lines',
-                                      name='Sample split',
+                                      name='Data split',
                                       line=dict(
                                           dash="dot")
                                       ))
