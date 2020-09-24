@@ -57,7 +57,7 @@ def merge_backtest_parameters(best_stratergy_parameters, best_stratergy_paramete
     best_stratergy_parameters = pd.DataFrame(best_stratergy_parameters, index=[0])
     best_stratergy_parameters['data_split'] = 'train'
     best_stratergy_parameters_oos = pd.DataFrame(best_stratergy_parameters_oos, index=[1])
-    best_stratergy_parameters_oos['data_split'] = 'val'
+    best_stratergy_parameters_oos['data_split'] = 'validation'
     return(pd.concat([best_stratergy_parameters, best_stratergy_parameters_oos]))
 
 
