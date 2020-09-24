@@ -3,6 +3,7 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 import json
+from datetime import datetime
 
 import dash
 import dash_table
@@ -114,8 +115,8 @@ def render_graph(jsonified_data):
                                       x_col = 'date',
                                       y_col = 'percent_returns',
                                       g_col = 'symbol',
-                                      title = 'Portfolio vs benchmark (XJT) returns',
-                                      yaxis_title = 'Percent Return (%)')
+                                      title = 'Portfolio vs benchmark (XJT) cumulative returns',
+                                      yaxis_title = 'Cumulative returns on $1')
     return performance_fig
 
 
@@ -127,8 +128,8 @@ def render_graph(jsonified_data):
                                          x_col = 'date',
                                          y_col = 'percent_return',
                                          g_col = 'symbol',
-                                         title = 'Momentum with frog filter portfolio component returns',
-                                         yaxis_title = 'Percent Return (%)')
+                                         title = 'Stratergy selected assests cumulative returns',
+                                         yaxis_title = 'Cumulative returns on $1')
     return universe_top_N_fig
 
 
@@ -139,12 +140,13 @@ def render_graph(jsonified_data):
                                          x_col = 'date',
                                          y_col = 'portfolio_cpnl',
                                          g_col = 'symbol',
-                                         title = 'Backtest performance vs Benchmark',
-                                         yaxis_title = 'Percent Return (%)',
+                                         title = 'Backtest performance vs benchmark (XJT) cumulative returns',
+                                         yaxis_title = 'Cumulative returns on $1',
                                          log_offset=0,
                                          log=True)
     historic_df = pd.read_json(jsonified_data[3])
-    oos_date = historic_df.loc[historic_df.data_split == 'val', 'start_year'].values[0]
+    oos_date = historic_df.loc[historic_df.data_split == 'validation', 'start_year'].values[0]
+    oos_date = datetime.strptime(f'01-02-{oos_date}', '%d-%m-%Y')
     backtest_fig.add_trace(go.Scatter(x=[oos_date,oos_date],
                                       y=[backtest_plot_df.portfolio_cpnl.min(), backtest_plot_df.portfolio_cpnl.max()],
                                       mode='lines',
