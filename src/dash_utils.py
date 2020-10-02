@@ -95,17 +95,21 @@ def filter_benchmark_data(benchmark_data, date_range=None, symbol = 'XJT', cpnl_
 def prepare_performance_df(pnl_df, trade_universe_df, benchmark_data, N):
     topN_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10)
 
-    topN_plot_data = topN_data.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
-    topN_plot_data['symbol'] = f'#TOP {N} PORT_NO_STOP'
+    # topN_plot_data = topN_data.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
+    # topN_plot_data['symbol'] = f'#TOP {N} PORT_NO_STOP'
     
-    topN_plot_data_stop = topN_data.groupby(['date']).stopped_return.mean().to_frame('percent_returns').reset_index()
-    topN_plot_data_stop['symbol'] = f'#TOP {N} PORT_TRAILING_STOP'
+    # topN_plot_data_stop = topN_data.groupby(['date']).stopped_return.mean().to_frame('percent_returns').reset_index()
+    # topN_plot_data_stop['symbol'] = f'#TOP {N} PORT_TRAILING_STOP'
 
     topN_frog_agg_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy='frog_agg')
     topN_plot_data_frog_agg = topN_frog_agg_data.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
     topN_plot_data_frog_agg['symbol'] = f'#TOP {N} PORT_FROG_AGG'
 
-    plot_data = pd.concat([topN_plot_data, topN_plot_data_stop, topN_plot_data_frog_agg, benchmark_data])
+    topN_idio_mean_frog_all_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy='idio_mean_frog_all')
+    topN_plot_data_idio_mean_frog_all = topN_idio_mean_frog_all_data.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
+    topN_plot_data_idio_mean_frog_all['symbol'] = f'#TOP {N} PORT_IDIO_M_FROG'
+
+    plot_data = pd.concat([topN_plot_data_frog_agg, topN_plot_data_idio_mean_frog_all, benchmark_data])
     plot_data.sort_values('date', inplace = True)
 
     return(plot_data)
@@ -137,6 +141,12 @@ def filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy = 'agg_mom'
     elif stratergy == 'frog_agg':
         frog_mom_df = trade_universe_df.loc[trade_universe_df.frog_momentum < 0]
         stratergy_symbols = frog_mom_df.sort_values('agg_mom').tail(N).symbol.values
+    elif stratergy == 'idio_mean_frog_all':
+        frog_mom_df = trade_universe_df.loc[trade_universe_df.frog_momentum < 0]
+        for p in [3, 6, 9, 12]:
+            signal_col = f'capm_residual_mean_momentum_{p}'
+            frog_mom_df = frog_mom_df.loc[frog_mom_df[signal_col] > 0]
+        stratergy_symbols = frog_mom_df.sort_values(signal_col).tail(N).symbol.values
     else:
         print(f'Unknown stratergy {stratergy}, defaulting to agg_mom stratergy')
         stratergy='agg_mom'
