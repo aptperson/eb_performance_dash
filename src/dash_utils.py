@@ -31,7 +31,7 @@ def get_all_dash_datasets(N):
     portfolio_plot_data.reset_index(drop = True, inplace = True)
 
     # symbol level
-    universe_plot_data = prepare_universe_df(pnl_df, trade_universe_df, N)
+    universe_plot_data = prepare_universe_df(pnl_df, trade_universe_df, N, 'idio_mean_frog_all')
     universe_plot_data.reset_index(drop = True, inplace = True)
 
     # backtest level
@@ -115,8 +115,9 @@ def prepare_performance_df(pnl_df, trade_universe_df, benchmark_data, N):
     return(plot_data)
 
 
-def prepare_universe_df(pnl_df, trade_universe_df, N = 10, stratergies = ['agg_mom', 'frog_agg']):
-    
+def prepare_universe_df(pnl_df, trade_universe_df, N = 10, stratergies = ['idio_mean_frog_all', 'frog_agg']):
+    if isinstance(stratergies, str):
+        stratergies = [stratergies]
     universe_df=[]
     for stratergy in stratergies:
         universe_df.append(prepare_stratergy_df(pnl_df, trade_universe_df, N, stratergy))
@@ -126,6 +127,7 @@ def prepare_universe_df(pnl_df, trade_universe_df, N = 10, stratergies = ['agg_m
 
 def prepare_stratergy_df(pnl_df, trade_universe_df, N = 10, stratergy='agg_mom'):
     stratergy_df = filter_to_stratergy(pnl_df, trade_universe_df, N, stratergy)
+    stratergy_df['open_date'] = stratergy_df.open_date.ffill()
 
     stratergy_stopped_data = stratergy_df.groupby(['date', 'open_date']).stopped_return.mean().to_frame('stopped_return').reset_index()
     stratergy_stopped_data['symbol'] = f'#PORT_TS_{stratergy}'

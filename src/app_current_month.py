@@ -26,7 +26,7 @@ external_stylesheets = [dbc.themes.BOOTSTRAP]
 apt_capital_logo_filename = 'APTCapitalLogo_200x200.png'
 
 N = 10
-stratergy = 'frog_agg'
+stratergy = 'idio_mean_frog_all'
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
