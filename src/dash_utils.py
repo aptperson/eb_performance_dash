@@ -102,11 +102,11 @@ def prepare_performance_df(pnl_df, trade_universe_df, benchmark_data, N):
     # topN_plot_data_stop['symbol'] = f'#TOP {N} PORT_TRAILING_STOP'
 
     topN_frog_agg_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy='frog_agg')
-    topN_plot_data_frog_agg = topN_frog_agg_data.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
+    topN_plot_data_frog_agg = topN_frog_agg_data.groupby(['date']).cumulative_percent_return.mean().to_frame('cumulative_percent_return').reset_index()
     topN_plot_data_frog_agg['symbol'] = f'#TOP {N} PORT_FROG_AGG'
 
     topN_idio_mean_frog_all_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy='idio_mean_frog_all')
-    topN_plot_data_idio_mean_frog_all = topN_idio_mean_frog_all_data.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
+    topN_plot_data_idio_mean_frog_all = topN_idio_mean_frog_all_data.groupby(['date']).cumulative_percent_return.mean().to_frame('cumulative_percent_return').reset_index()
     topN_plot_data_idio_mean_frog_all['symbol'] = f'#TOP {N} PORT_IDIO_M_FROG'
 
     plot_data = pd.concat([topN_plot_data_frog_agg, topN_plot_data_idio_mean_frog_all, benchmark_data])

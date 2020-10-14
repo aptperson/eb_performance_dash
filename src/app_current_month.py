@@ -113,10 +113,11 @@ def render_graph(jsonified_data):
     portfolio_df = pd.read_json(jsonified_data[0])
     performance_fig = plot_groupby_ts(portfolio_df,
                                       x_col = 'date',
-                                      y_col = 'percent_returns',
+                                      y_col = 'cumulative_percent_return',
                                       g_col = 'symbol',
                                       title = 'Portfolio vs benchmark (XJT) cumulative returns',
-                                      yaxis_title = 'Cumulative returns on $1')
+                                      yaxis_title = 'Cumulative returns on $1',
+                                      log_offset=0)
     return performance_fig
 
 
@@ -126,10 +127,11 @@ def render_graph(jsonified_data):
     universe_plot_df = universe_plot_df.loc[universe_plot_df.stratergy==stratergy]
     universe_top_N_fig = plot_groupby_ts(universe_plot_df,
                                          x_col = 'date',
-                                         y_col = 'percent_return',
+                                         y_col = 'cumulative_percent_return',
                                          g_col = 'symbol',
                                          title = 'Stratergy selected assests cumulative returns',
-                                         yaxis_title = 'Cumulative returns on $1')
+                                         yaxis_title = 'Cumulative returns on $1',
+                                         log_offset=0)
     return universe_top_N_fig
 
 
