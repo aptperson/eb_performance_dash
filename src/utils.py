@@ -68,6 +68,7 @@ def insert_open_prices(pnl_df, open_price_df):
     
     op_df = open_price_df.copy()
     op_df['percent_return'] = 0
+    op_df['cumulative_percent_return'] = 1
     op_df['stopped_return'] = 0
     op_df['dollor_return'] = 0
     op_df['open_date'] = op_df.date.values

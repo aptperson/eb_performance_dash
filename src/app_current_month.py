@@ -39,18 +39,13 @@ app.layout = html.Div(children=[
                     html.Img(src=app.get_asset_url(apt_capital_logo_filename))
                         ), # close col 1
                 dbc.Col([
-                    html.H1(children='APTCapital Asx Performance Dashboard'),
+                    html.H1(children='APTCapital Science'),
+                    html.H1(children='Asx Performance Dashboard'),
                         ]
                     , style={'marginBottom': 2, 'marginTop': 25, 'marginLeft':5, 'marginRight':15}
                         ), # close col 2
-                dbc.Col([
-                        # empty col
-                        ]
-                    , style={'marginBottom': 2, 'marginTop': 50, 'marginLeft':50, 'marginRight':15}
-                        ), # close col 3
                     ]),
                 ]),
-                # dbc.Col()
             ], style={'marginBottom': 2, 'marginTop': 5, 'marginLeft':15, 'marginRight':15}), # end heading row
     dbc.Row(
         html.H3(children='Current Month Performance')
@@ -96,7 +91,14 @@ app.layout = html.Div(children=[
                     , style={'marginBottom': 5, 'marginTop': 50, 'marginLeft':20, 'marginRight':20}
             ), # close col 2
         ], style={'marginBottom': 2, 'marginTop': 5, 'marginLeft':15, 'marginRight':15}) # close row 3
+    ,
+    dbc.Row(
+        html.H6(
+            children='This website and the information contained within is for general information purposes only. It is not a source of legal, financial or investment advice. For legal, financial or investment advice consult a qualified and registered practitioner.'
+            , style={'marginBottom': 1, 'marginTop': 1, 'marginLeft':50, 'marginRight':15} # end heading row
 
+        )
+    )
 
         , html.Div(id='hidden-data', style={'display': 'none'})
         , dcc.Dropdown(id='data-refresh', style={'display': 'none'}),
@@ -175,6 +177,5 @@ def render_table(jsonified_data):
 
 @app.callback([Output('protfolio-performance-table', 'columns'), Output('protfolio-performance-table', 'data')], [Input('hidden-data', 'children')])
 def render_table(jsonified_data):
-    # universe_df = prepare_universe_table_data(pd.read_json(jsonified_data[2]), pd.read_json(jsonified_data[3]), N)
     portfolio_df = prepare_portfolio_table_data(pd.read_json(jsonified_data[0]))
     return portfolio_df

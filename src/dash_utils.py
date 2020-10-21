@@ -84,7 +84,7 @@ def prepare_backtest_df(backtest_pnl_series, benchmark_data, cpnl_col_name='port
     return(pd.concat([backtest_pnl_series[['symbol', 'date', cpnl_col_name]], benchmark_data], ignore_index=True))
 
 
-def filter_benchmark_data(benchmark_data, date_range=None, symbol = 'XJT', cpnl_col_name='percent_returns', offset = 1):
+def filter_benchmark_data(benchmark_data, date_range=None, symbol = 'XJT', cpnl_col_name='cumulative_percent_return', offset = 0):
     benchmark_symbol_df = benchmark_data.loc[benchmark_data.symbol == symbol].copy()
     mask = (benchmark_symbol_df.date >= date_range[0]) & (benchmark_symbol_df.date <= date_range[1])
     benchmark_symbol_df = benchmark_symbol_df.loc[mask]
@@ -94,12 +94,6 @@ def filter_benchmark_data(benchmark_data, date_range=None, symbol = 'XJT', cpnl_
 
 def prepare_performance_df(pnl_df, trade_universe_df, benchmark_data, N):
     topN_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10)
-
-    # topN_plot_data = topN_data.groupby(['date']).percent_return.mean().to_frame('percent_returns').reset_index()
-    # topN_plot_data['symbol'] = f'#TOP {N} PORT_NO_STOP'
-    
-    # topN_plot_data_stop = topN_data.groupby(['date']).stopped_return.mean().to_frame('percent_returns').reset_index()
-    # topN_plot_data_stop['symbol'] = f'#TOP {N} PORT_TRAILING_STOP'
 
     topN_frog_agg_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy='frog_agg')
     topN_plot_data_frog_agg = topN_frog_agg_data.groupby(['date']).cumulative_percent_return.mean().to_frame('cumulative_percent_return').reset_index()
@@ -160,20 +154,18 @@ def filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy = 'agg_mom'
 
 
 def prepare_universe_table_data(trade_universe_df, stratergy):
-    # df = filter_to_stratergy(pnl_df, trade_universe_df, N)
     df = trade_universe_df.loc[trade_universe_df.stratergy == stratergy]
-    df = df.groupby('symbol')[['close', 'volume', 'high_water_mark', 'percent_return',
+    df = df.groupby('symbol')[['close', 'volume', 'high_water_mark', 'cumulative_percent_return',
                                'historical_vol', 'stop_level',
-                               'stopped', 'stopped_return']].last().reset_index().round(4).sort_values('percent_return')
+                               'stopped', 'stopped_return']].last().reset_index().round(4).sort_values('cumulative_percent_return')
     return(prepare_table(df))
 
 
 def prepare_portfolio_table_data(df):
     df = pd.concat([
-        # df.groupby('symbol').percent_returns.first().to_frame('open'),
-                    df.groupby('symbol').percent_returns.last().to_frame('current'),
-                    df.groupby('symbol').percent_returns.min().to_frame('min'),
-                    df.groupby('symbol').percent_returns.max().to_frame('max')
+                    df.groupby('symbol').cumulative_percent_return.last().to_frame('current'),
+                    df.groupby('symbol').cumulative_percent_return.min().to_frame('min'),
+                    df.groupby('symbol').cumulative_percent_return.max().to_frame('max')
                     ], axis = 1).round(4).reset_index()
     return(prepare_table(df))
 

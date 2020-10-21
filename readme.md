@@ -34,4 +34,11 @@ git commit -m "update commit message:
 
 eb deploy
 
+#### to remove the application and environment
+eb temimnate
+
 [inspired by](https://medium.com/@austinlasseter/plotly-dash-and-the-elastic-beanstalk-command-line-89fb6b67bb79)
+
+
+#### Disclaimer
+This website and the information contained within is for general information purposes only. It is not a source of legal, financial or investment advice. For legal, financeial or investment advice cousult a qualified and registered practitioner
