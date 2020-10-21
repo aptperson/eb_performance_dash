@@ -25,6 +25,7 @@ git commit -m "another commit message"
 
 #### then create the environment
 eb create 
+follow the prompts
 
 #### much success
 
@@ -41,4 +42,4 @@ eb temimnate
 
 
 #### Disclaimer
-This website and the information contained within is for general information purposes only. It is not a source of legal, financial or investment advice. For legal, financeial or investment advice cousult a qualified and registered practitioner
+This website and the information contained within is for general information purposes only. It is not a source of legal, financial or investment advice. For legal, financial or investment advice consult a qualified and registered practitioner
