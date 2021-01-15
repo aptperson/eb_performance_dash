@@ -8,13 +8,15 @@ import pandas as pd
 from src.query_utils import query_asx_table_date_range, get_df_from_s3
 
 asx_closed_calendar = pd.DataFrame({'date': ['2019-01-01', '2019-01-28',
-                                    '2019-04-19', '2019-04-22',
-                                    '2019-04-25', '2019-06-10',
-                                    '2019-12-25', '2019-12-26',
-                                    '2020-01-01', '2020-01-27',
-                                    '2020-04-10', '2020-04-13',
-                                    '2020-04-25', '2020-06-08',
-                                    '2020-12-25', '2020-12-28']})
+                                            '2019-04-19', '2019-04-22',
+                                            '2019-04-25', '2019-06-10',
+                                            '2019-12-25', '2019-12-26',
+                                            '2020-01-01', '2020-01-27',
+                                            '2020-04-10', '2020-04-13',
+                                            '2020-04-25', '2020-06-08',
+                                            '2020-12-25', '2020-12-28',
+                                            '2021-01-01','2020-01-26','2020-04-02','2020-04-05',
+                                            '2020-04-25','2020-06-14','2020-12-27','2020-12-28']})
 
 
 def prepare_table(df):
@@ -128,7 +130,7 @@ def gen_first_trading_day_month(year, month, out_format = None):
 
 def get_asx_open_dates(out_format=None, meta_data=False):
 
-    bdates = pd.DataFrame({'date': pd.bdate_range('2019', '2021')})
+    bdates = pd.DataFrame({'date': pd.bdate_range('2019', '2022')})
 
     if meta_data:
         bdates['day'] = bdates.date.dt.day
@@ -185,8 +187,12 @@ def get_next_months_last_trade_date(date, date_format=None):
 
     next_month = gen_next_month(date.month)
     if next_month == 1:
-        print('year has changed, need a new calendar')
-    mask = (trade_dates.month == next_month) & (trade_dates.year == date.year)
+        # print('year has changed, need a new calendar')
+        year = date.year + 1
+    else:
+        year = date.year
+
+    mask = (trade_dates.month == next_month) & (trade_dates.year == year)
     return(trade_dates.loc[mask])
 
 

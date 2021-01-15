@@ -16,6 +16,7 @@ def prepare_table(df):
 
 def get_all_dash_datasets(N):
     today, signal_date, pnl_month_start, pnl_month_end = gen_trading_dates()
+    print(today, signal_date, pnl_month_start, pnl_month_end)
 
     # get all of the required data sets
     trade_universe_df, open_price_df, pnl_df = get_performance_data(signal_date, pnl_month_start, pnl_month_end)
@@ -93,13 +94,13 @@ def filter_benchmark_data(benchmark_data, date_range=None, symbol = 'XJT', cpnl_
 
 
 def prepare_performance_df(pnl_df, trade_universe_df, benchmark_data, N):
-    topN_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10)
+    topN_data = filter_to_stratergy(pnl_df, trade_universe_df, N=N)
 
-    topN_frog_agg_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy='frog_agg')
+    topN_frog_agg_data = filter_to_stratergy(pnl_df, trade_universe_df, N = N, stratergy='frog_agg')
     topN_plot_data_frog_agg = topN_frog_agg_data.groupby(['date']).cumulative_percent_return.mean().to_frame('cumulative_percent_return').reset_index()
     topN_plot_data_frog_agg['symbol'] = f'#TOP {N} PORT_FROG_AGG'
 
-    topN_idio_mean_frog_all_data = filter_to_stratergy(pnl_df, trade_universe_df, N = 10, stratergy='idio_mean_frog_all')
+    topN_idio_mean_frog_all_data = filter_to_stratergy(pnl_df, trade_universe_df, N = N, stratergy='idio_mean_frog_all')
     topN_plot_data_idio_mean_frog_all = topN_idio_mean_frog_all_data.groupby(['date']).cumulative_percent_return.mean().to_frame('cumulative_percent_return').reset_index()
     topN_plot_data_idio_mean_frog_all['symbol'] = f'#TOP {N} PORT_IDIO_M_FROG'
 
