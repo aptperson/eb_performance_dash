@@ -9,17 +9,8 @@ import pandas as pd
 
 from boto3.dynamodb.conditions import Key, Attr
 
-
 db = boto3.resource('dynamodb', 'ap-southeast-2')
 s3 = boto3.client('s3')
-
-# table_field_dict = {'asx_dividends': ['asx_dividends', 'dividends'],
-#                     'asx_splits': ['asx_splits', 'splits'],
-#                     'asx_prices': ['asx_raw_prices_2', 'OHLCV'],
-#                     'asx_trade_universe': ['asx_trade_universe', 'universe'],
-#                     'asx_trade_open': ['asx_trade_open_prices', 'open_prices'],
-#                     'asx_position_pnl': ['asx_position_pnl', 'pnl'],
-#                     'asx_trade_series': ['asx_trade_series', 'series']}
 
 
 table_field_dict = {'asx_dividends': ['asx_dividends', 'dividends'],

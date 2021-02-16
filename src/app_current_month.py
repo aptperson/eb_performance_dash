@@ -25,7 +25,7 @@ from src.query_utils import get_df_from_s3
 external_stylesheets = [dbc.themes.BOOTSTRAP]
 apt_capital_logo_filename = 'APTCapitalLogo_200x200.png'
 
-N = 5
+N = 10
 stratergy = 'idio_mean_frog_all'
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)

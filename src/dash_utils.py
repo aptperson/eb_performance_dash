@@ -23,7 +23,6 @@ def get_all_dash_datasets(N):
     benchmark_data = get_benchmark_data()
     best_stratergy_parameters, backtest_pnl_series = get_backtest_data()
 
-
     ###### munge the data ######
     # portfolio level
     pnl_df = insert_open_prices(pnl_df, open_price_df)
